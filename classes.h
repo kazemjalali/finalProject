@@ -142,6 +142,7 @@ public:
 	void notify(int type, int publisherId, string publishername);
 	void showNotif();
 	void showAllNotif(int limit);
+	bool isPublisher();
 	virtual void deleteThisFilmComment(int filmId, int commentId);
 	virtual void payment(int amount);
 	virtual void showFollowers();

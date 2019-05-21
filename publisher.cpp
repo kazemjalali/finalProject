@@ -110,9 +110,6 @@ void Publisher::showPublishedFilms(string input){
 	cout << "#. Film Id | Film Name | Film Length | Film price | rate | Production Year | Film Director" << endl;
 	for(int i = 0; i < publishedFilms.size(); i++){
 		filmYear = stoi(publishedFilms[i]->getFilmYear());
-		cout << "film year is : " << filmYear << endl << endl;
-		cout << "min year :" << minYearInput << endl;
-		cout << "max : " << maxYearInput << endl;
 		if((publishedFilms[i]-> getFilmName() == filmNameInput) 
 			|| (publishedFilms[i]->getFilmRate() > minRateInput) 
 			|| (publishedFilms[i]->getFilmDirector() == directorInput) 

@@ -36,6 +36,7 @@ int Client::replyToComment(int fId, int cmId, string content){}
 void Client::getMoney(){}
 void Client::followed(Client* p){}
 void Client::setPublisherTrue(){}
+bool Client::isPublisher(){return publisher;}
 void Client::sendNotif(int type, string userName, int userId, string filmName, int filmId){}
 
 string getNextWord(string info, string field){
@@ -77,7 +78,8 @@ void Client::setUserInfo(string info , Client &user){
 		string age = getNextWord(info, "age");
 		user.age = stoi(age);
 	}
-	string pub = getNextWord(info, "publisher");
+	if(existstance("publisher", info))
+		string pub = getNextWord(info, "publisher");
 	
 }
 

@@ -39,8 +39,6 @@ bool checkExistance(string field, string str){
 string getCommandType(string &input){
 	int commandTypeLength = input.find(SPACE);
 	string commandType = input.substr(STRING_START, commandTypeLength);
-	// else	
-		// throw
 	input.erase(STRING_START, commandTypeLength + 1);
 	return commandType;	
 }
@@ -62,8 +60,6 @@ int findUserById(int id, vector<Client*> users){
 			return i;
 	}	
 }
-
-
 
 bool compareFilmsByID(Film* f1, Film* f2){
 	return (f1->getFilmId() < f2->getFilmId());
@@ -111,23 +107,33 @@ int Manager::findFilm(int id){
 }
 
 void Manager::signupUser(string info){
-	string temp = getThisField(info, "publisher");
 	Client* user = new Client;
 	Publisher* publisher = new Publisher;
-	if(temp == "true"){
-		user = publisher;
-		user->setPublisherTrue();
+	if(checkExistance("publisher", info)){
+		string temp = getThisField(info, "publisher");
+		if(temp == "true"){
+			user = publisher;
+			user->setPublisherTrue();
+		}	
 	}
-	string userNameInput = getThisField(info, "username");
+	string userNameInput;
 	if(usernameExists(userNameInput))
 		throw BadRequestException();
+	userNameInput = getThisField(info, "username");
 	user->setUserInfo(info, *user);
 	user->setUserId(users.size() + 1);
 	currentUser = user->getUserName();
 	users.push_back(user);
 	cout << "OK" << endl;
 }
-
+/*
+POST signup ? username kaafjim password 1234 email kaaf age 15 publisher true
+POST films ? name fuckadel year 1397 length 15 price 15 summary fuckadel director kazem
+POST films ? name fuckadeltayyebi year 1398 length 30 price 10 summary heisfucked director amir
+POST films ? name fuck year 1395 length 44 price 8 summary wa director me
+POST films ? name nk year 45 length 55 price 43 summary ddf director you
+POST signup ? username kazem password 4321 age 19 email fuckkk
+*/
 void Manager::loginUser(string info){
 	string userNameInput;
 	string passwordInput;
@@ -154,6 +160,8 @@ void Manager::loginUser(string info){
 
 void Manager::submitFilm(string info){
 	int userIndex = findUser(currentUser, users);
+	if(!users[userIndex]->isPublisher())
+		throw PermissionException();
 	Client* user = users[userIndex];
 	int filmId = filmBox.size() + 1;
 	Film* newFilm = user->addFilm(info, currentUser, filmId);
@@ -164,12 +172,16 @@ void Manager::submitFilm(string info){
 
 void Manager::editFilmInfo(int filmId, string info){
 	int userIndex = findUser(currentUser, users);
+	if(!users[userIndex]->isPublisher())
+		throw PermissionException();
 	users[userIndex]->editFilmInfo(filmId, info);
 	cout << "OK" << endl;
 }
 
 void Manager::deleteFilm(string info){
 	int userIndex = findUser(currentUser, users);
+	if(!users[userIndex]->isPublisher())
+		throw PermissionException();
 	int filmId;
 	if(!checkExistance("film_id", info))
 		throw BadRequestException();
@@ -181,11 +193,15 @@ void Manager::deleteFilm(string info){
 
 void Manager::showPublisherFilms(string info){
 	int userIndex = findUser(currentUser, users);
+	if(!users[userIndex]->isPublisher())
+		throw PermissionException();
 	users[userIndex]->showPublishedFilms(info);
 }
 
 void Manager::showFollowerList(){
 	int userIndex = findUser(currentUser, users);
+	if(!users[userIndex]->isPublisher())
+		throw PermissionException();
 	users[userIndex]->showFollowers();
 }
 
@@ -255,7 +271,7 @@ void Manager::purchaseFilm(string info){
 	int publisherIndex = findUser(publisherName, users);
 	if(publisherIndex == NOT_FOUND)
 		throw NotFoundException();
-	users[publisherIndex]->sendNotif(FOLLOW, currentUser, clientId, filmName, filmId);// type , client name, client id, film name, film id
+	users[publisherIndex]->sendNotif(FOLLOW, currentUser, clientId, filmName, filmId);
 	int cost = filmBox[filmIndex]->getFilmPrice();
 	int publisherShare = calcPublisherShare(filmBox[filmIndex]);
 	networkMoney += (cost - publisherShare);
@@ -295,6 +311,8 @@ void Manager::postComment(string info){
 
 void Manager::removeComment(string info){
 	int userIndex = findUser(currentUser, users);
+	if(!users[userIndex]->isPublisher())
+		throw PermissionException();
 	int filmId;
 	int commentId;
 	if(!checkExistance("film_id", info))
@@ -359,14 +377,16 @@ void Manager::postReplyComment(string info){
 
 void Manager::payPublisherMoney(){
 	int userIndex = findUser(currentUser, users);
+	if(!users[userIndex]->isPublisher())
+		throw PermissionException();
 	users[userIndex]->getMoney();
 	cout << "OK" << endl;
 }
 
 void Manager::search(string input){
 	string filmNameInput;
-	int maxYearInput ;
-	int minYearInput ;
+	int maxYearInput = 10000;
+	int minYearInput = 0;
 	float minRateInput;
 	int priceInput;
 	string directorInput;
@@ -397,6 +417,8 @@ void Manager::search(string input){
 			filmBox[i]->showFilmInfo();
 		}
 	}
+	maxYearInput = 10000;
+	minYearInput = 0;
 }
 
 void Manager::showPurchasedFilms(string info){
@@ -418,13 +440,12 @@ void Manager::showAllNotifications(string info){
 		limit = stoi(getThisField(info, "limit"));
 	users[userIndex]->showAllNotif(limit);
 }
-//void Manager::getFilmDetails(string info){
-//	int id = stoi(getThisField(info, "film_id"));
-//}
+
 
 void Manager::processPostCommands(string command, string info){
-	if(command == "signup")
+	if(command == "signup"){
 		signupUser(info);
+	}
 	else if(command == "login")
 		loginUser(info);
 	else if(command == "films")
@@ -491,7 +512,9 @@ void Manager::processGetCommands(string command, string info){
 
 void Manager::processCommand(string &input){
 	if(currentUser == " "){
-		if(!checkExistance("signup", input))
+		if(input == "")
+			return;
+		else if(!checkExistance("signup", input))
 			throw PermissionException();
 	}
 	string commandType = getCommandType(input);
