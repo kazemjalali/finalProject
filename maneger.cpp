@@ -95,6 +95,21 @@ bool Manager::usernameExists(string name){
 		return false;
 }
 
+void Manager::deleteFilmFromFilmBox(int id){
+	int index = 0;
+	int i = 0;
+	for(i = 0; i < filmBox.size(); i++){
+		if(filmBox[i]-> getFilmId() == id){
+			index = i;
+			filmBox.erase(filmBox.begin() + index);
+			return;
+		}
+	}
+	i++;
+	if(i == filmBox.size())
+		throw NotFoundException();
+}
+
 int Manager::findFilm(int id){
 	int i = 0;
 	for(i = 0; i < filmBox.size(); i++){
@@ -126,14 +141,7 @@ void Manager::signupUser(string info){
 	users.push_back(user);
 	cout << "OK" << endl;
 }
-/*
-POST signup ? username kaafjim password 1234 email kaaf age 15 publisher true
-POST films ? name fuckadel year 1397 length 15 price 15 summary fuckadel director kazem
-POST films ? name fuckadeltayyebi year 1398 length 30 price 10 summary heisfucked director amir
-POST films ? name fuck year 1395 length 44 price 8 summary wa director me
-POST films ? name nk year 45 length 55 price 43 summary ddf director you
-POST signup ? username kazem password 4321 age 19 email fuckkk
-*/
+
 void Manager::loginUser(string info){
 	string userNameInput;
 	string passwordInput;
@@ -146,16 +154,16 @@ void Manager::loginUser(string info){
 	else
 		passwordInput = getThisField(info, "password");
 	int i = 0;
-	for(i = 0; i < users.size(); i++){ 
+	for(i = 0; i < users.size(); i++){
 		if(users[i]->getUserName() == userNameInput && users[i]-> getPassword() == passwordInput){
 			currentUser = userNameInput;
 			cout << "OK" << endl;
-			return;			
+			return;
 		}
 	}
-	i++;
-	if(i == users.size())
-		throw NotFoundException();
+	if(i == users.size()){
+		throw BadRequestException();
+	}
 }
 
 void Manager::submitFilm(string info){
@@ -187,7 +195,8 @@ void Manager::deleteFilm(string info){
 		throw BadRequestException();
 	else
 		filmId = stoi(getThisField(info, "film_id"));
-	users[userIndex]->deleteFilm(filmId); 
+	users[userIndex]->deleteFilm(filmId);
+	deleteFilmFromFilmBox(filmId); 
 	cout << "OK" << endl;
 }
 
@@ -196,6 +205,7 @@ void Manager::showPublisherFilms(string info){
 	if(!users[userIndex]->isPublisher())
 		throw PermissionException();
 	users[userIndex]->showPublishedFilms(info);
+	return;
 }
 
 void Manager::showFollowerList(){
@@ -243,8 +253,8 @@ void Manager::rateFilm(string info){
 	else
 		filmId = stoi(getThisField(info, "film_id"));
 	int filmIndex = findFilm(filmId);
-	if(filmIndex == NOT_FOUND)
-		throw NotFoundException();
+	//if(filmIndex == NOT_FOUND)
+	//	throw NotFoundException();
 	string filmName = filmBox[filmIndex]->getFilmName();
 	string publisherName = filmBox[filmIndex]->getFilmPublisher();
 	int publisherIndex = findUser(publisherName, users);
@@ -271,7 +281,7 @@ void Manager::purchaseFilm(string info){
 	int publisherIndex = findUser(publisherName, users);
 	if(publisherIndex == NOT_FOUND)
 		throw NotFoundException();
-	users[publisherIndex]->sendNotif(FOLLOW, currentUser, clientId, filmName, filmId);
+	users[publisherIndex]->sendNotif(BUY_FILM, currentUser, clientId, filmName, filmId);
 	int cost = filmBox[filmIndex]->getFilmPrice();
 	int publisherShare = calcPublisherShare(filmBox[filmIndex]);
 	networkMoney += (cost - publisherShare);
@@ -342,7 +352,10 @@ void Manager::getFilmDetails(string info){
 	cout << endl << "Recommendation Film" << endl;
 	cout << "#. Film Id | Film Name | Film Length | Film Director" << endl;
 	sort(filmBox.begin(), filmBox.end(), compareFilmsByRating);
-	for(int i = 0; i < 4; i++){
+	int recommendationSize = 4;
+	if(filmBox.size() < 4)
+		recommendationSize = filmBox.size();
+	for(int i = 0; i < recommendationSize; i++){
 		cout << i << ". ";
 		filmBox[i]->showFilmInfoRec();
 	}
@@ -489,8 +502,9 @@ void Manager::processDeleteCommands(string command, string info){
 }
 
 void Manager::processGetCommands(string command, string info){
-	if(command == "published")
+	if(command == "published"){
 		showPublisherFilms(info);
+	}
 	else if(command == "followers")
 		showFollowerList();
 	else if(command == "films")
@@ -511,10 +525,10 @@ void Manager::processGetCommands(string command, string info){
 
 
 void Manager::processCommand(string &input){
+	if(input == "")
+		return;
 	if(currentUser == " "){
-		if(input == "")
-			return;
-		else if(!checkExistance("signup", input))
+		if(!checkExistance("signup", input))
 			throw PermissionException();
 	}
 	string commandType = getCommandType(input);
@@ -528,8 +542,9 @@ void Manager::processCommand(string &input){
 		processPutCommands(command, info);
 	else if(commandType == "DELETE")
 		processDeleteCommands(command, info);
-	else if(commandType == "GET")
+	else if(commandType == "GET"){
 		processGetCommands(command, info);
+	}
 	else
 		throw BadRequestException();
 }

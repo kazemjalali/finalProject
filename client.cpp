@@ -6,11 +6,13 @@
 
 int findThisFilm(vector<Film*> films, int id){
 	int i = 0;
+	if(films.size() == 0)
+		return -1;
 	for(i = 0; i < films.size(); i++){
-		if(films[i]->getFilmId() == id)
+		if(films[i]->getFilmId() == id){
 			return i;
+		}
 	}
-	i++;
 	if(i == films.size())
 		return -1;
 
@@ -111,29 +113,36 @@ void Client::submitComment(int id, string content, int userId){
 
 void Client::showPurchased(string input){
 	string filmNameInput;
-	string maxYearInput;
-	string minYearInput;
+	int maxYearInput = 10000;
+	int minYearInput = 0;
 	int priceInput;
 	string directorInput;
 	if(existstance("name", input))
 		filmNameInput = getNextWord(input, "name");
 	if(existstance("max_year", input))
-		maxYearInput = getNextWord(input, "max_year");
+		maxYearInput = stoi(getNextWord(input, "max_year"));
 	if(existstance("min_year", input))
-		minYearInput = getNextWord(input, "min_year");
+		minYearInput = stoi(getNextWord(input, "min_year"));
 	if(existstance("price", input))
 		priceInput = stoi(getNextWord(input, "price"));
 	if(existstance("director", input))
 		directorInput = getNextWord(input, "director");
+	int filmYear;
 	int count = 0;
 	cout << "#. Film Id | Film Name | Film Length | Film price | rate | Production Year | Film Director" << endl;
 	for(int i = 0; i < purchasedFilms.size(); i++){
-		if(purchasedFilms[i]-> getFilmName() == filmNameInput || purchasedFilms[i]->getFilmDirector() == directorInput || purchasedFilms[i]->getFilmPrice() == priceInput || (purchasedFilms[i]->getFilmYear() < maxYearInput && purchasedFilms[i]->getFilmYear() > minYearInput)){
+		filmYear = stoi(purchasedFilms[i]->getFilmYear());
+		if((purchasedFilms[i]-> getFilmName() == filmNameInput)
+			|| (purchasedFilms[i]->getFilmDirector() == directorInput) 
+			|| (purchasedFilms[i]->getFilmPrice() == priceInput) 
+			|| (filmYear <= maxYearInput) && (filmYear >= minYearInput)){
 			count++;
 			cout << count << ". ";
 			purchasedFilms[i]->showFilmInfo();
 		}
 	}
+	maxYearInput = 10000;
+	minYearInput = 0;
 }
 
 void Client::notify(int type, int publisherId, string publishername){

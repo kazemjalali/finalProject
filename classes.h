@@ -21,7 +21,6 @@ public:
 	void what();
 };
 
-
 class Notification {
 public:
 	Notification();
@@ -38,26 +37,26 @@ public:
 private:
 	int id;
 	int type;
+	int userId;
+	int filmId;
+	int publisherId;
 	bool seen;
 	string content;
 	string publisherName;
-	int publisherId;
 	string userName;
-	int userId;
 	string filmName;
-	int filmId;
 };
 
 class Comment {
 public:
 	int getCommentId();
+	int getSender();
 	void setContent(string content);
 	void setSenderId(int id);
 	void setCommentId(int id);
 	void setFilmId(int filmId);
 	void showComment();
 	void reply(string content, int senderId, int receiverId);
-	int getSender();
 private:
 	vector<Comment*> repliedComments;
 	int commentId;
@@ -71,47 +70,47 @@ class Film {
 public:
 	Film();
 	int publisherImpart();
+	int replyComment(int cmId, string content, int senderId);
+	int getFilmId();
+	int getFilmPrice();
+	int getFilmStatus();
+	int findComment(int cmId);
+	int getPublisherMoney();
 	void setFilmInfo(string info);
 	void editFilmInfo(string info);
 	void setFilmId(int id);
 	void setFilmPublisher(string publisher);
 	void showFilmList();
 	void deletComment();
-	int replyComment(int cmId, string content, int senderId);
 	void showFilmDetails(int filmId);
 	void showFilmInfo();
-	int getFilmId();
-	float getFilmRate();
-	string getFilmName();
-	string getFilmYear();
-	string getFilmDirector();
-	string getFilmPublisher();
-	int getFilmPrice();
-	int getFilmStatus();
 	void submitRate(int score);
 	void sendComment(string content, int userId);
 	void deleteComment(int id);
 	void showFilmComments();
 	void showFilmDetails();
 	void showFilmInfoRec();
-	int findComment(int cmId);
 	void earnPublisherShare(int money);
-	int getPublisherMoney();
+	float getFilmRate();
+	string getFilmName();
+	string getFilmYear();
+	string getFilmDirector();
+	string getFilmPublisher();
 private:
 	int filmId;
-	string name;
-	string year;
 	int hour;
 	int price;
 	int publisherMoney;
 	int numOfClients;
+	int numOfRaters;
+	int rateStatus;
+	string name;
+	string year;
 	string summary;
 	string director;
 	string publisher;
-	int numOfRaters;
 	float totalScore;
 	float rating;
-	int rateStatus;
 	vector<Comment*> comments;
 };
 
@@ -119,16 +118,13 @@ private:
 class Client {
 public:
 	Client();
-	void setUserInfo(string info, Client &user);
-	void setUserId(int id);
-	void getUserInfo();
 	string getUserName();
 	string getPassword();
 	int getId();
+	void setUserInfo(string info, Client &user);
+	void setUserId(int id);
+	void getUserInfo();
 	void follow(Client* pub);
-	virtual Film* addFilm(string info, string &publisher, int id);
-	virtual void editFilmInfo(int filmId, string info);
-	virtual void deleteFilm(int filmId);
 	void rechargeAccount(int amount);
 	void search();
 	void filmdetail(int filmId);
@@ -143,42 +139,45 @@ public:
 	void showNotif();
 	void showAllNotif(int limit);
 	bool isPublisher();
+	virtual Film* addFilm(string info, string &publisher, int id);
+	virtual void editFilmInfo(int filmId, string info);
+	virtual void deleteFilm(int filmId);
 	virtual void deleteThisFilmComment(int filmId, int commentId);
 	virtual void payment(int amount);
 	virtual void showFollowers();
 	virtual void showMyFilms();
 	virtual void showPublishedFilms(string info);
-	virtual int replyToComment(int fId, int cmId, string content);
 	virtual void getMoney();
 	virtual void setPublisherTrue();
 	virtual void followed(Client* p);
 	virtual void sendNotif(int type, string userName, int userId, string filmName, int filmId);
+	virtual int replyToComment(int fId, int cmId, string content);
 protected:
 	int userId;
+	int age;
+	int money;
 	string userName;
 	string password;
 	string email;
-	int age;
 	bool publisher;
 	vector<Film*> purchasedFilms;
 	vector<Client*> followings;
 	vector<Notification*> notifications;
-	int money;
 };
 
 class Publisher : public Client {
 public:
 	Film* addFilm(string info, string &currentUser, int id);
+	int getFilmNum();
+	int replyToComment(int fId, int cmId, string content);
 	void editFilmInfo(int filmId, string info);
 	void deleteFilm(int filmId);
 	void showPublishedFilms(string info);
 	void showFollowers();
 	void payment(int amount);
-	void getMoney(); // miad ruye hame filmash peymayesh mikone va publisherImparteshoono jam mikone o tahvil mide
+	void getMoney();
 	void showNotifications();
-	int getFilmNum();
 	void deleteThisFilmComment(int filmId, int commentId);
-	int replyToComment(int fId, int cmId, string content);
 	void getPublisherMoney();
 	void followed(Client* p);
 	void setPublisherTrue();
@@ -210,7 +209,6 @@ public:
 	void rateFilm(string info);
 	void purchaseFilm(string info);
 	void payPublisherMoney();
-	int findFilm(int id);
 	void postComment(string info);
 	void postReplyComment(string info);
 	void removeComment(string info);
@@ -218,7 +216,9 @@ public:
 	void showPurchasedFilms(string info);
 	void showNotifications();
 	void showAllNotifications(string info);
+	void deleteFilmFromFilmBox(int id);
 	bool usernameExists(string name);
+	int findFilm(int id);
 private:
 	vector<Client*> users;
 	vector<Film*> filmBox;

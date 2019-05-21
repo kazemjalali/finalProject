@@ -88,8 +88,8 @@ void Publisher::deleteFilm(int id){
 
 void Publisher::showPublishedFilms(string input){
 	string filmNameInput;
-	int maxYearInput ;
-	int minYearInput ;
+	int maxYearInput = 10000;
+	int minYearInput = 0;
 	float minRateInput;
 	int priceInput;
 	string directorInput;
@@ -120,6 +120,8 @@ void Publisher::showPublishedFilms(string input){
 			publishedFilms[i]->showFilmInfo();
 		}
 	}
+	maxYearInput = 10000;
+	minYearInput = 0;
 }
 
 void Publisher::showFollowers(){

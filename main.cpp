@@ -6,10 +6,10 @@ using namespace std;
 int main() {
 	string input;
 	Manager manager;
-	while(true){
+	while(getline(cin, input)){
 		try{
-			getline(cin, input);
 			manager.processCommand(input);
+			input.clear();
 		}catch(NotFoundException ex){
 			ex.what();
 		}catch(BadRequestException ex){
