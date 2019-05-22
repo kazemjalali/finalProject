@@ -123,6 +123,7 @@ public:
 	int getId();
 	void setUserInfo(string info, Client &user);
 	void setUserId(int id);
+	void setAsAdmin();
 	void getUserInfo();
 	void follow(Client* pub);
 	void rechargeAccount(int amount);
@@ -139,6 +140,7 @@ public:
 	void showNotif();
 	void showAllNotif(int limit);
 	bool isPublisher();
+	void showMoney();
 	virtual Film* addFilm(string info, string &publisher, int id);
 	virtual void editFilmInfo(int filmId, string info);
 	virtual void deleteFilm(int filmId);
@@ -217,6 +219,8 @@ public:
 	void showNotifications();
 	void showAllNotifications(string info);
 	void deleteFilmFromFilmBox(int id);
+	void logoutUser();
+	void showUserMoney();
 	bool usernameExists(string name);
 	int findFilm(int id);
 private:

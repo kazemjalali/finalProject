@@ -177,8 +177,16 @@ void Client::showAllNotif(int limit){
 	}	
 }
 
+void Client::showMoney(){
+	cout << money << endl;
+}
+
 void Client::setUserId(int id){
 	userId = id;
+}
+void setAsSAdmin(){
+	userName = "admin";
+	password = "admin";
 }
 
 string Client::getUserName(){ return userName; }

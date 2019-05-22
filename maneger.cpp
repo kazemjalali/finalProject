@@ -3,6 +3,7 @@
 #include <bits/stdc++.h>
 #define QUESTION_MARK '?'
 #define SPACE ' '
+#define EMPTY ""
 #define STRING_START 0
 #define ZERO 0
 #define SPACE_POS 1
@@ -81,7 +82,10 @@ int calcPublisherShare(Film* film){
 }
 
 Manager::Manager(){
-	currentUser = " ";
+	currentUser = EMPTY;
+	Client* admin = new Client;
+	admin->setAsAdmin();
+	users.push_back(admin);
 }
 
 bool Manager::usernameExists(string name){
@@ -122,6 +126,8 @@ int Manager::findFilm(int id){
 }
 
 void Manager::signupUser(string info){
+	if(currentUser != EMPTY)
+		throw BadRequestException();
 	Client* user = new Client;
 	Publisher* publisher = new Publisher;
 	if(checkExistance("publisher", info)){
@@ -143,6 +149,8 @@ void Manager::signupUser(string info){
 }
 
 void Manager::loginUser(string info){
+	if(currentUser != EMPTY)
+		throw BadRequestException();
 	string userNameInput;
 	string passwordInput;
 	if(!checkExistance("username", info))
@@ -454,6 +462,23 @@ void Manager::showAllNotifications(string info){
 	users[userIndex]->showAllNotif(limit);
 }
 
+void Manager::logoutUser(){
+	currentUser = EMPTY;
+}
+
+void Manager::showNetworkMoney(){
+	cout << networkMoney << endl;
+}
+
+void Manager::showUserMoney(){
+	int userIndex = findUser(currentUser, users);
+	string username = users[userIndex]->getUserName();
+	if(username == "admin")
+		showNetworkMoney();
+	else
+		users[userIndex]->showMoney();
+}
+
 
 void Manager::processPostCommands(string command, string info){
 	if(command == "signup"){
@@ -479,27 +504,20 @@ void Manager::processPostCommands(string command, string info){
 		postComment(info);
 	else if(command == "replies")
 		postReplyComment(info);
-	else
-		throw NotFoundException();
-}
-
-void Manager::processPutCommands(string command, string info){
-	if(command == "films"){
+	else if(command == "put_films"){
 		int filmId = stoi(getThisField(info, "film_id"));
 		editFilmInfo(filmId, info);
 	}
+	else if(command == "delete_films")
+		deleteFilm(info);;
+	else if(command == "delete_comments")
+		removeComment(info);
+	else if(command == "logout")
+		logoutUser();
 	else
 		throw NotFoundException();
 }
 
-void Manager::processDeleteCommands(string command, string info){
-	if(command == "films")
-		deleteFilm(info);
-	else if(command == "comments")
-		removeComment(info);
-	else
-		throw NotFoundException();
-}
 
 void Manager::processGetCommands(string command, string info){
 	if(command == "published"){
@@ -518,6 +536,8 @@ void Manager::processGetCommands(string command, string info){
 		showNotifications();
 	else if(command == "notifications read")
 		showAllNotifications(info);
+	else if(command == "money")
+		showUserMoney();
 	else
 		throw NotFoundException();
 }
@@ -527,10 +547,10 @@ void Manager::processGetCommands(string command, string info){
 void Manager::processCommand(string &input){
 	if(input == "")
 		return;
-	if(currentUser == " "){
-		if(!checkExistance("signup", input))
-			throw PermissionException();
-	}
+	//if(currentUser == EMPTY){
+	//	if(!checkExistance("signup", input))
+	//		throw PermissionException();
+	//}
 	string commandType = getCommandType(input);
 	int qPosition = input.find(QUESTION_MARK);
 	string command = input.substr(ZERO, qPosition - SPACE_POS);
