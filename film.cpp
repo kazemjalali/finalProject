@@ -35,6 +35,7 @@ int fieldExistance(string field, string str){
 Film::Film(){
 	rating = 0;
 	rateStatus = WEAK;
+	hidden = false;
 }
 
 void Film::setFilmId(int id){
@@ -102,7 +103,6 @@ void Film::sendComment(string content, int userId){
 	cm->setSenderId(userId);
 	cm->setFilmId(filmId);
 	comments.push_back(cm);
-	// send notif
 }
 
 void Film::deleteComment(int id){
@@ -143,6 +143,9 @@ void Film::earnPublisherShare(int pubShare){
 	publisherMoney += pubShare;
 }
 
+void Film::hide(){
+	hidden = true;
+}
 
 
 int Film::getPublisherMoney(){
@@ -158,5 +161,6 @@ string Film::getFilmDirector(){return director;}
 string Film::getFilmPublisher(){return publisher;}
 float Film::getFilmRate(){return rating;}
 int Film::getFilmStatus(){return rateStatus;}
+bool Film::getHiddenStatus(){return hidden;}
 
 

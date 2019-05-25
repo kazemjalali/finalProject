@@ -105,7 +105,7 @@ void Manager::deleteFilmFromFilmBox(int id){
 	for(i = 0; i < filmBox.size(); i++){
 		if(filmBox[i]-> getFilmId() == id){
 			index = i;
-			filmBox.erase(filmBox.begin() + index);
+			filmBox[index]->hide();
 			return;
 		}
 	}
@@ -182,6 +182,7 @@ void Manager::submitFilm(string info){
 	int filmId = filmBox.size() + 1;
 	Film* newFilm = user->addFilm(info, currentUser, filmId);
 	filmBox.push_back(newFilm);
+	addVertex();
 	cout << "OK" << endl;
 
 } 
@@ -261,8 +262,8 @@ void Manager::rateFilm(string info){
 	else
 		filmId = stoi(getThisField(info, "film_id"));
 	int filmIndex = findFilm(filmId);
-	//if(filmIndex == NOT_FOUND)
-	//	throw NotFoundException();
+	if(filmIndex == NOT_FOUND)
+		throw NotFoundException();
 	string filmName = filmBox[filmIndex]->getFilmName();
 	string publisherName = filmBox[filmIndex]->getFilmPublisher();
 	int publisherIndex = findUser(publisherName, users);
@@ -283,6 +284,8 @@ void Manager::purchaseFilm(string info){
 	int filmIndex = findFilm(filmId);
 	if(filmIndex == NOT_FOUND)
 		throw NotFoundException();
+	if(filmBox[filmIndex]->getHiddenStatus())
+		throw BadRequestException();
 	string filmName = filmBox[filmIndex]->getFilmName();
 	int clientId = users[userIndex]->getId();
 	string publisherName = filmBox[filmIndex]->getFilmPublisher();
@@ -297,6 +300,7 @@ void Manager::purchaseFilm(string info){
 	users[userIndex]->pay(cost);
 	users[userIndex]->buyFilm(filmBox[filmIndex]);
 	sort(filmBox.begin(), filmBox.end(), compareFilmsByID);
+	buildGraph();
 	cout << "OK" << endl;
 }
 
@@ -360,13 +364,7 @@ void Manager::getFilmDetails(string info){
 	cout << endl << "Recommendation Film" << endl;
 	cout << "#. Film Id | Film Name | Film Length | Film Director" << endl;
 	sort(filmBox.begin(), filmBox.end(), compareFilmsByRating);
-	int recommendationSize = 4;
-	if(filmBox.size() < 4)
-		recommendationSize = filmBox.size();
-	for(int i = 0; i < recommendationSize; i++){
-		cout << i << ". ";
-		filmBox[i]->showFilmInfoRec();
-	}
+	recommendFilm(filmGraph, filmId);
 	sort(filmBox.begin(), filmBox.end(), compareFilmsByID);
 }
 
@@ -427,11 +425,13 @@ void Manager::search(string input){
 	int filmYear;
 	cout << "#. Film Id | Film Name | Film Length | Film price | rate | Production Year | Film Director" << endl;
 	for(int i = 0; i < filmBox.size(); i++){
+		if(filmBox[i]->getHiddenStatus())
+			continue;
 		filmYear = stoi(filmBox[i]->getFilmYear());
-		if((filmBox[i]-> getFilmName() == filmNameInput) 
-			|| (filmBox[i]->getFilmRate() > minRateInput) 
-			|| (filmBox[i]->getFilmDirector() == directorInput) 
-			|| (filmBox[i]->getFilmPrice() == priceInput) 
+		if((filmBox[i]-> getFilmName() == filmNameInput)
+			|| (filmBox[i]->getFilmRate() > minRateInput)
+			|| (filmBox[i]->getFilmDirector() == directorInput)
+			|| (filmBox[i]->getFilmPrice() == priceInput)
 			|| (filmYear <= maxYearInput) && (filmYear >= minYearInput)){
 			count++;
 			cout << count << ". ";
@@ -464,6 +464,7 @@ void Manager::showAllNotifications(string info){
 
 void Manager::logoutUser(){
 	currentUser = EMPTY;
+	cout << "OK" << endl;
 }
 
 void Manager::showNetworkMoney(){
@@ -479,6 +480,82 @@ void Manager::showUserMoney(){
 		users[userIndex]->showMoney();
 }
 
+void Manager::initGraph(){
+	int graphSize = filmBox.size();
+	for(int i = 0; i < graphSize; i++){
+		for(int j = 0; j < graphSize; j++){
+			filmGraph[i][j] = ZERO;
+		}
+	}	
+}
+
+void Manager::addVertex(){
+	int matrixSize = filmBox.size();
+	vector<int> row;
+	for(int j = 0; j < filmGraph.size(); j++){
+		filmGraph[j].push_back(0);
+	}
+	for(int i = 0; i < matrixSize; i++){
+		row.push_back(0);
+	}
+	filmGraph.push_back(row);
+}
+
+void Manager::add_edge(int u, int v){
+   filmGraph[u - 1][v - 1]++;
+   filmGraph[v - 1][u - 1]++;
+}
+
+void Manager::buildGraph(){
+	vector<int> IDs;
+	initGraph();
+	for(int i = 0; i < users.size(); i++){
+		IDs = users[i]->getFilmsID();
+		for(int j = 0; j < IDs.size() - 1; j++){
+			for(int k = j + 1; k < IDs.size(); k++){
+				add_edge(IDs[j], IDs[k]);
+			}
+		}
+		IDs.clear();
+	}	
+}
+
+void Manager::printGraph(){
+	for(int i = 0; i < filmGraph.size(); i++){
+		for(int j = 0; j < filmGraph[i].size(); j++){
+			cout << filmGraph[i][j] << " ";
+		}
+		cout << endl;
+	}
+}
+
+void Manager::recommendFilm(vector<vector<int>> graph, int filmId){
+	int row = filmId - 1;
+	int recommendationSize = 4;
+	if(filmBox.size() < 4)
+		recommendationSize = filmBox.size();
+	else if(graph[row].size() < 4)
+		recommendationSize = graph[row].size();
+	int maximum;
+	int index = 0;
+	for(int j = 0; j < recommendationSize; j++){
+		maximum = 0;
+		cout << j + 1 << ". ";
+		for(int i = 0; i < graph[row].size(); i++){
+			if(graph[row][i] > maximum){
+				maximum = graph[row][i];
+				index = i;
+			}
+			else if(graph[row][i] == maximum){
+				index = i;
+				break;
+			}
+		}
+		graph[row][index] = 0;
+		int filmIndex = findFilm(index + 1);
+		filmBox[filmIndex]->showFilmInfoRec();
+	}
+}
 
 void Manager::processPostCommands(string command, string info){
 	if(command == "signup"){
@@ -509,7 +586,7 @@ void Manager::processPostCommands(string command, string info){
 		editFilmInfo(filmId, info);
 	}
 	else if(command == "delete_films")
-		deleteFilm(info);;
+		deleteFilm(info);
 	else if(command == "delete_comments")
 		removeComment(info);
 	else if(command == "logout")
@@ -547,10 +624,11 @@ void Manager::processGetCommands(string command, string info){
 void Manager::processCommand(string &input){
 	if(input == "")
 		return;
-	//if(currentUser == EMPTY){
-	//	if(!checkExistance("signup", input))
-	//		throw PermissionException();
-	//}
+	if(currentUser == EMPTY){
+		if((!checkExistance("signup", input)))
+			throw PermissionException();
+
+	}
 	string commandType = getCommandType(input);
 	int qPosition = input.find(QUESTION_MARK);
 	string command = input.substr(ZERO, qPosition - SPACE_POS);
@@ -558,10 +636,6 @@ void Manager::processCommand(string &input){
 	if(commandType == "POST"){
 		processPostCommands(command, info);
 	}
-	else if(commandType == "PUT")
-		processPutCommands(command, info);
-	else if(commandType == "DELETE")
-		processDeleteCommands(command, info);
 	else if(commandType == "GET"){
 		processGetCommands(command, info);
 	}

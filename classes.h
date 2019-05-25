@@ -91,6 +91,8 @@ public:
 	void showFilmDetails();
 	void showFilmInfoRec();
 	void earnPublisherShare(int money);
+	void hide();
+	bool getHiddenStatus();
 	float getFilmRate();
 	string getFilmName();
 	string getFilmYear();
@@ -104,6 +106,7 @@ private:
 	int numOfClients;
 	int numOfRaters;
 	int rateStatus;
+	bool hidden;
 	string name;
 	string year;
 	string summary;
@@ -141,6 +144,7 @@ public:
 	void showAllNotif(int limit);
 	bool isPublisher();
 	void showMoney();
+	vector<int> getFilmsID();
 	virtual Film* addFilm(string info, string &publisher, int id);
 	virtual void editFilmInfo(int filmId, string info);
 	virtual void deleteFilm(int filmId);
@@ -196,8 +200,6 @@ public:
 	void processCommand(string &input);
 	void processPostCommands(string command, string info);
 	void processGetCommands(string command, string info);
-	void processDeleteCommands(string command, string info);
-	void processPutCommands(string command, string info);
 	void signupUser(string info); 
 	void loginUser(string info); 
 	void submitFilm(string info);
@@ -221,11 +223,19 @@ public:
 	void deleteFilmFromFilmBox(int id);
 	void logoutUser();
 	void showUserMoney();
+	void showNetworkMoney();
+	void addVertex();
+	void add_edge(int u, int v);
+	void initGraph();
+	void buildGraph();
+	void printGraph();
+	void recommendFilm(vector<vector<int>> graph, int filmId);
 	bool usernameExists(string name);
 	int findFilm(int id);
 private:
 	vector<Client*> users;
 	vector<Film*> filmBox;
+	vector<vector<int>> filmGraph;
 	int networkMoney;
 	string currentUser;
 };

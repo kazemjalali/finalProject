@@ -76,7 +76,7 @@ void Publisher::deleteFilm(int id){
 	for(i = 0; i < publishedFilms.size(); i++){
 		if(publishedFilms[i]-> getFilmId() == id){
 			index = i;
-			publishedFilms.erase(publishedFilms.begin() + index);
+			publishedFilms[index]->hide();
 			return;
 		}
 	}
@@ -109,6 +109,8 @@ void Publisher::showPublishedFilms(string input){
 	int filmYear;
 	cout << "#. Film Id | Film Name | Film Length | Film price | rate | Production Year | Film Director" << endl;
 	for(int i = 0; i < publishedFilms.size(); i++){
+		if(publishedFilms[i]->getHiddenStatus())
+			continue;
 		filmYear = stoi(publishedFilms[i]->getFilmYear());
 		if((publishedFilms[i]-> getFilmName() == filmNameInput) 
 			|| (publishedFilms[i]->getFilmRate() > minRateInput) 

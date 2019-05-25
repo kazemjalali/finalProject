@@ -181,10 +181,18 @@ void Client::showMoney(){
 	cout << money << endl;
 }
 
+vector<int> Client::getFilmsID(){
+	vector<int> IDs;
+	for(int i = 0; i < purchasedFilms.size(); i++){
+		IDs.push_back(purchasedFilms[i]->getFilmId());
+	}
+	return IDs;
+}
+
 void Client::setUserId(int id){
 	userId = id;
 }
-void setAsSAdmin(){
+void Client::setAsAdmin(){
 	userName = "admin";
 	password = "admin";
 }
