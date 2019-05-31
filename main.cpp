@@ -21,10 +21,15 @@ int main(int argc, char **argv) {
     server.post("/loginError", new ErrorHandler("/"));
     server.get("/signup", new ShowPage("static/signup.html"));
     server.post("/signup", new SignupHandler(manager));
+<<<<<<< HEAD
+=======
+
+>>>>>>> 19d1dc95dd639dfa02f295a7b9e0a1b2b66c6e30
     server.get("/signupError", new ShowPage("static/signupError.html"));
     server.post("/signupError", new ErrorHandler("/signup"));
     server.get("/signupErrorInput", new ShowPage("static/signupErrorInput.html"));
     server.post("/signupErrorInput", new ErrorHandler("/signup"));
+<<<<<<< HEAD
     server.get("/publisherHome", new pHomeHandler(manager));
     server.post("/publisherHome", new pHomeHandler(manager));
     server.get("/clientHome", new cHomeHandler(manager));
@@ -35,6 +40,8 @@ int main(int argc, char **argv) {
     server.get("/profile", new ProfileHandler(manager));
     server.post("/profile", new ProfileHandler(manager));
     server.post("/rechargeAccount", new rechargeAccountHandler(manager));
+=======
+>>>>>>> 19d1dc95dd639dfa02f295a7b9e0a1b2b66c6e30
 
 
 
