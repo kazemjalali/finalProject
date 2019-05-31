@@ -8,14 +8,14 @@ string getNext(string field, string info){
 	string temp = info.substr(fieldStart);
 	string temp1 = temp.substr(field.length() + 1);
 	string inf = temp1.substr(STRING_START, temp1.find(SPACE));
-	return inf; 
+	return inf;
 }
 
 int Film::findComment(int cmId){
 	int i = 0;
 	for(i = 0; i < comments.size(); i++){
 		if(comments[i]->getCommentId() == cmId)
-			return i; 
+			return i;
 	}
 	i++;
 	if(i == comments.size())
@@ -29,7 +29,7 @@ int fieldExistance(string field, string str){
 		return 1;
 	else
 		return -1;
-} 
+}
 
 
 Film::Film(){
@@ -49,6 +49,8 @@ void Film::setFilmInfo(string info){
 	price = stoi(getNext("price", info));
 	summary = getNext("summary", info);
 	director = getNext("director", info);
+	if(name == "" || year == "" || summary == "" || director == "" || getNext("length", info) == "" || getNext("price", info) == "")
+		throw BadRequestException();
 }
 
 void Film::setFilmPublisher(string pub){
@@ -153,14 +155,18 @@ int Film::getPublisherMoney(){
 	publisherMoney = 0;
 	return temp;
 }
+
+
+
 int Film::getFilmId(){ return filmId; }
 int Film::getFilmPrice(){return price;}
 string Film::getFilmName(){return name;}
 string Film::getFilmYear(){return year;}
 string Film::getFilmDirector(){return director;}
+string Film::getPriceStr(){return to_string(price);}
+string Film::getRatingStr(){return to_string(rating);}
+string Film::getLengthStr(){return to_string(hour);}
 string Film::getFilmPublisher(){return publisher;}
 float Film::getFilmRate(){return rating;}
 int Film::getFilmStatus(){return rateStatus;}
 bool Film::getHiddenStatus(){return hidden;}
-
-

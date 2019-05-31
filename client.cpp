@@ -38,6 +38,7 @@ int Client::replyToComment(int fId, int cmId, string content){}
 void Client::getMoney(){}
 void Client::followed(Client* p){}
 void Client::setPublisherTrue(){}
+string Client::getPublishedFilmsList(){}
 bool Client::isPublisher(){return publisher;}
 void Client::sendNotif(int type, string userName, int userId, string filmName, int filmId){}
 
@@ -46,7 +47,7 @@ string getNextWord(string info, string field){
 	string temp = info.substr(fieldStart);
 	string temp1 = temp.substr(field.length() + 1);
 	string inf = temp1.substr(STRING_START, temp1.find(SPACE));
-	return inf; 
+	return inf;
 }
 
 bool existstance(string field, string str){
@@ -82,11 +83,32 @@ void Client::setUserInfo(string info , Client &user){
 	}
 	if(existstance("publisher", info))
 		string pub = getNextWord(info, "publisher");
-	
+
 }
 
 void Client::payment(int amount){
 	money += amount;
+}
+
+string Client::getPurchasedFilmsList(){
+	string body;
+	for(int i = 0; i < purchasedFilms.size(); i++){
+		body += "<tr>";
+    string filmName = purchasedFilms[i]->getFilmName();
+    string filmDirector = purchasedFilms[i]->getFilmDirector();
+    string filmYear = purchasedFilms[i]->getFilmYear();
+    string filmRate = purchasedFilms[i]->getRatingStr();
+    string filmLength = purchasedFilms[i]->getLengthStr();
+    string filmPrice = purchasedFilms[i]->getPriceStr();
+    body += "<td>" + filmName + "</td>";
+    body += "<td>" + filmLength + "</td>";
+    body += "<td>" + filmPrice + "</td>";
+    body += "<td>" + filmRate + "</td>";
+    body += "<td>" + filmYear + "</td>";
+    body += "<td>" + filmDirector + "</td>";
+    body += "</tr>";
+	}
+	return body;
 }
 
 void Client::rateThisFilm(int id, float score){
@@ -133,8 +155,8 @@ void Client::showPurchased(string input){
 	for(int i = 0; i < purchasedFilms.size(); i++){
 		filmYear = stoi(purchasedFilms[i]->getFilmYear());
 		if((purchasedFilms[i]-> getFilmName() == filmNameInput)
-			|| (purchasedFilms[i]->getFilmDirector() == directorInput) 
-			|| (purchasedFilms[i]->getFilmPrice() == priceInput) 
+			|| (purchasedFilms[i]->getFilmDirector() == directorInput)
+			|| (purchasedFilms[i]->getFilmPrice() == priceInput)
 			|| (filmYear <= maxYearInput) && (filmYear >= minYearInput)){
 			count++;
 			cout << count << ". ";
@@ -174,7 +196,7 @@ void Client::showAllNotif(int limit){
 		notifications[i]->showNotification();
 		notifications[i]->markAsRead();
 		counter++;
-	}	
+	}
 }
 
 void Client::showMoney(){
@@ -197,12 +219,11 @@ void Client::setAsAdmin(){
 	password = "admin";
 }
 
+
+
 string Client::getUserName(){ return userName; }
 string Client::getPassword(){ return password; }
 int Client::getId(){ return userId;}
 void Client::getUserInfo(){
-	cout << userName << endl << password << endl << age << endl << userId << endl; 
+	cout << userName << endl << password << endl << age << endl << userId << endl;
 }
-
-
-

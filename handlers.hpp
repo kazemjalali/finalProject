@@ -13,7 +13,42 @@ public:
   string redirectAddress;
 };
 
+class pHomeHandler : public RequestHandler {
+public:
+  pHomeHandler(Manager* m);
+  Response *callback(Request *);
+};
 
+class cHomeHandler : public RequestHandler {
+public:
+  cHomeHandler(Manager* m);
+  Response *callback(Request *);
+};
+
+class SubmitFilmHandler : public RequestHandler {
+public:
+  SubmitFilmHandler(Manager* m);
+  Response *callback(Request *);
+};
+
+class ProfileHandler : public RequestHandler {
+public:
+  ProfileHandler(Manager* m);
+  Response *callback(Request *);
+};
+
+class rechargeAccountHandler : public RequestHandler {
+public:
+  rechargeAccountHandler(Manager* m);
+  Response *callback(Request *);
+};
+
+
+class DeleteFilmHandler : public RequestHandler {
+public:
+  DeleteFilmHandler(Manager* m);
+  Response *callback(Request *);
+};
 
 class SignupHandler : public RequestHandler {
 public:

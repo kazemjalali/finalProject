@@ -97,6 +97,9 @@ public:
 	string getFilmName();
 	string getFilmYear();
 	string getFilmDirector();
+	string getLengthStr();
+	string getRatingStr();
+	string getPriceStr();
 	string getFilmPublisher();
 private:
 	int filmId;
@@ -144,6 +147,7 @@ public:
 	void showAllNotif(int limit);
 	bool isPublisher();
 	void showMoney();
+	string getPurchasedFilmsList();
 	vector<int> getFilmsID();
 	virtual Film* addFilm(string info, string &publisher, int id);
 	virtual void editFilmInfo(int filmId, string info);
@@ -158,6 +162,7 @@ public:
 	virtual void followed(Client* p);
 	virtual void sendNotif(int type, string userName, int userId, string filmName, int filmId);
 	virtual int replyToComment(int fId, int cmId, string content);
+	virtual string getPublishedFilmsList();
 protected:
 	int userId;
 	int age;
@@ -187,6 +192,7 @@ public:
 	void getPublisherMoney();
 	void followed(Client* p);
 	void setPublisherTrue();
+	string getPublishedFilmsList();
 	void sendNotif(int type, string userName, int userId, string filmName, int filmId);
 private:
 	vector<Film*> publishedFilms;
@@ -197,11 +203,12 @@ private:
 class Manager {
 public:
 	Manager();
+	string getPurFilmsList(string username);
 	void processCommand(string &input);
 	void processPostCommands(string command, string info);
 	void processGetCommands(string command, string info);
-	void signupUser(string info); 
-	void loginUser(string info); 
+	void signupUser(string info);
+	void loginUser(string info);
 	void submitFilm(string info);
 	void editFilmInfo(int filmId, string info);
 	void deleteFilm(string info);
@@ -216,6 +223,7 @@ public:
 	void postComment(string info);
 	void postReplyComment(string info);
 	void removeComment(string info);
+	string getFilmsList();
 	void search(string info);
 	void showPurchasedFilms(string info);
 	void showNotifications();
@@ -229,6 +237,8 @@ public:
 	void initGraph();
 	void buildGraph();
 	void printGraph();
+	Client* getUser(string uName);
+	string getPubFilmsList(string username);
 	void recommendFilm(vector<vector<int>> graph, int filmId);
 	bool usernameExists(string name);
 	int findFilm(int id);

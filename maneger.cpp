@@ -41,7 +41,7 @@ string getCommandType(string &input){
 	int commandTypeLength = input.find(SPACE);
 	string commandType = input.substr(STRING_START, commandTypeLength);
 	input.erase(STRING_START, commandTypeLength + 1);
-	return commandType;	
+	return commandType;
 }
 
 int findUser(string uName, vector<Client*> users){
@@ -55,11 +55,13 @@ int findUser(string uName, vector<Client*> users){
 		return -1;
 }
 
+
+
 int findUserById(int id, vector<Client*> users){
 	for(int i = 0; i < users.size(); i++){
 		if(users[i]->getId() == id)
 			return i;
-	}	
+	}
 }
 
 bool compareFilmsByID(Film* f1, Film* f2){
@@ -125,6 +127,14 @@ int Manager::findFilm(int id){
 		return -1;
 }
 
+Client* Manager::getUser(string uName){
+	int i = 0;
+	for(i = 0; i < users.size(); i++){
+		if(users[i]->getUserName() == uName)
+			return users[i];
+	}
+}
+
 void Manager::signupUser(string info){
 	if(currentUser != EMPTY)
 		throw BadRequestException();
@@ -135,7 +145,7 @@ void Manager::signupUser(string info){
 		if(temp == "true"){
 			user = publisher;
 			user->setPublisherTrue();
-		}	
+		}
 	}
 	string userNameInput;
 	if(usernameExists(userNameInput))
@@ -185,7 +195,7 @@ void Manager::submitFilm(string info){
 	addVertex();
 	cout << "OK" << endl;
 
-} 
+}
 
 void Manager::editFilmInfo(int filmId, string info){
 	int userIndex = findUser(currentUser, users);
@@ -205,7 +215,7 @@ void Manager::deleteFilm(string info){
 	else
 		filmId = stoi(getThisField(info, "film_id"));
 	users[userIndex]->deleteFilm(filmId);
-	deleteFilmFromFilmBox(filmId); 
+	deleteFilmFromFilmBox(filmId);
 	cout << "OK" << endl;
 }
 
@@ -312,7 +322,7 @@ void Manager::postComment(string info){
 		throw BadRequestException();
 	else
 		filmId = stoi(getThisField(info, "film_id"));
-	
+
 	int filmIndex = findFilm(filmId);
 	if(filmIndex == NOT_FOUND)
 		throw NotFoundException();
@@ -486,7 +496,7 @@ void Manager::initGraph(){
 		for(int j = 0; j < graphSize; j++){
 			filmGraph[i][j] = ZERO;
 		}
-	}	
+	}
 }
 
 void Manager::addVertex(){
@@ -517,7 +527,7 @@ void Manager::buildGraph(){
 			}
 		}
 		IDs.clear();
-	}	
+	}
 }
 
 void Manager::printGraph(){
@@ -557,6 +567,38 @@ void Manager::recommendFilm(vector<vector<int>> graph, int filmId){
 	}
 }
 
+string Manager::getPubFilmsList(string username){
+	int userIndex = findUser(username, users);
+	return users[userIndex]->getPublishedFilmsList();
+}
+
+string Manager::getPurFilmsList(string username){
+	int userIndex = findUser(username, users);
+	return users[userIndex]->getPurchasedFilmsList();
+}
+
+string Manager::getFilmsList(){
+	string body;
+	for(int i = 0; i < filmBox.size(); i++){
+		body += "<tr>";
+    string filmName = filmBox[i]->getFilmName();
+    string filmDirector = filmBox[i]->getFilmDirector();
+    string filmYear = filmBox[i]->getFilmYear();
+    string filmRate = filmBox[i]->getRatingStr();
+    string filmLength = filmBox[i]->getLengthStr();
+    string filmPrice = filmBox[i]->getPriceStr();
+    body += "<td>" + filmName + "</td>";
+    body += "<td>" + filmLength + "</td>";
+    body += "<td>" + filmPrice + "</td>";
+    body += "<td>" + filmRate + "</td>";
+    body += "<td>" + filmYear + "</td>";
+    body += "<td>" + filmDirector + "</td>";
+    body += "</tr>";
+	}
+	return body;
+}
+
+
 void Manager::processPostCommands(string command, string info){
 	if(command == "signup"){
 		signupUser(info);
@@ -572,7 +614,7 @@ void Manager::processPostCommands(string command, string info){
 			financialActivities(info);
 		else
 			payPublisherMoney();
-	}	
+	}
 	else if(command == "rate")
 		rateFilm(info);
 	else if(command == "buy")

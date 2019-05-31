@@ -6,7 +6,7 @@ string getNextwrd(string field, string info){
 	string temp = info.substr(fieldStart);
 	string temp1 = temp.substr(field.length() + 1);
 	string inf = temp1.substr(STRING_START, temp1.find(SPACE));
-	return inf; 
+	return inf;
 }
 
 int findFilm(vector<Film*> films, int id){
@@ -112,10 +112,10 @@ void Publisher::showPublishedFilms(string input){
 		if(publishedFilms[i]->getHiddenStatus())
 			continue;
 		filmYear = stoi(publishedFilms[i]->getFilmYear());
-		if((publishedFilms[i]-> getFilmName() == filmNameInput) 
-			|| (publishedFilms[i]->getFilmRate() > minRateInput) 
-			|| (publishedFilms[i]->getFilmDirector() == directorInput) 
-			|| (publishedFilms[i]->getFilmPrice() == priceInput) 
+		if((publishedFilms[i]-> getFilmName() == filmNameInput)
+			|| (publishedFilms[i]->getFilmRate() > minRateInput)
+			|| (publishedFilms[i]->getFilmDirector() == directorInput)
+			|| (publishedFilms[i]->getFilmPrice() == priceInput)
 			|| (filmYear <= maxYearInput) && (filmYear >= minYearInput)){
 			count++;
 			cout << count << ". ";
@@ -170,6 +170,32 @@ void Publisher::sendNotif(int type, string userName, int userId, string filmName
 	notif->setFilmName(filmName);
 	notif->setFilmId(filmId);
 	notifications.insert(notifications.begin(), notif);
+}
+
+string Publisher::getPublishedFilmsList(){
+	string body;
+	for(int i = 0; i < publishedFilms.size(); i++){
+		if(publishedFilms[i]->getHiddenStatus())
+			continue;
+		body += "<tr>";
+    string filmName = publishedFilms[i]->getFilmName();
+    string filmDirector = publishedFilms[i]->getFilmDirector();
+    string filmYear = publishedFilms[i]->getFilmYear();
+    string filmRate = publishedFilms[i]->getRatingStr();
+    string filmLength = publishedFilms[i]->getLengthStr();
+    string filmPrice = publishedFilms[i]->getPriceStr();
+    body += "<td>" + filmName + "</td>";
+    body += "<td>" + filmLength + "</td>";
+    body += "<td>" + filmPrice + "</td>";
+    body += "<td>" + filmRate + "</td>";
+    body += "<td>" + filmYear + "</td>";
+    body += "<td>" + filmDirector + "</td>";
+		body += "<td><a href='deleteThisFilm?id=";
+		body += to_string(publishedFilms[i]->getFilmId());
+		body += "'>Delete</a></td>";
+		body += "</tr>";
+	}
+	return body;
 }
 
 int Publisher::getFilmNum(){
