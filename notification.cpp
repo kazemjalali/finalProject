@@ -6,11 +6,12 @@
 #define RATE_FILM 5
 #define COMMENT 6
 
+
 Notification::Notification(){
 	seen = false;
 }
 
-void Notification::setType(int notifType){ 
+void Notification::setType(int notifType){
 	type = notifType;
 }
 void Notification::setPublisherName(string name){

@@ -28,9 +28,12 @@ void Client::follow(Client* pub){
 Client::Client(){
 	publisher = false;
 }
+
+
 void Client::editFilmInfo(int filmId, string info){}
 void Client::deleteFilm(int filmId){}
 void Client::showMyFilms(){}
+string Client::filterPubFilms(string directorName){}
 void Client::showPublishedFilms(string info){}
 void Client::showFollowers(){}
 void Client::deleteThisFilmComment(int filmId, int commentId){}
@@ -106,6 +109,9 @@ string Client::getPurchasedFilmsList(){
     body += "<td>" + filmRate + "</td>";
     body += "<td>" + filmYear + "</td>";
     body += "<td>" + filmDirector + "</td>";
+		body += "<td><a href='rateFilm?id=";
+		body += to_string(purchasedFilms[i]->getFilmId());
+		body += "'>Rate</a></td>";
     body += "</tr>";
 	}
 	return body;

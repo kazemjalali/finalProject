@@ -57,6 +57,7 @@ public:
 	void setFilmId(int filmId);
 	void showComment();
 	void reply(string content, int senderId, int receiverId);
+	string getContent();
 private:
 	vector<Comment*> repliedComments;
 	int commentId;
@@ -94,6 +95,8 @@ public:
 	void hide();
 	bool getHiddenStatus();
 	float getFilmRate();
+	string getSummary();
+	string getComments();
 	string getFilmName();
 	string getFilmYear();
 	string getFilmDirector();
@@ -155,6 +158,7 @@ public:
 	virtual void deleteThisFilmComment(int filmId, int commentId);
 	virtual void payment(int amount);
 	virtual void showFollowers();
+	virtual string filterPubFilms(string directorName);
 	virtual void showMyFilms();
 	virtual void showPublishedFilms(string info);
 	virtual void getMoney();
@@ -187,6 +191,7 @@ public:
 	void showFollowers();
 	void payment(int amount);
 	void getMoney();
+	string filterPubFilms(string directorName);
 	void showNotifications();
 	void deleteThisFilmComment(int filmId, int commentId);
 	void getPublisherMoney();
@@ -209,18 +214,24 @@ public:
 	void processGetCommands(string command, string info);
 	void signupUser(string info);
 	void loginUser(string info);
+	int getNumOfFilms(string publisher);
 	void submitFilm(string info);
+	string getFilmComments(int id);
 	void editFilmInfo(int filmId, string info);
 	void deleteFilm(string info);
 	void showPublisherFilms(string info);
+	string filterFilms(string directorName);
 	void showFollowerList();
 	void followUser(string info);
 	void financialActivities(string info);
+	string getRecommendList();
 	void getFilmDetails(string info);
 	void rateFilm(string info);
 	void purchaseFilm(string info);
+	string filterPublishedFilms(string publisher, string directorName);
 	void payPublisherMoney();
 	void postComment(string info);
+	void setCurrentUser(string username);
 	void postReplyComment(string info);
 	void removeComment(string info);
 	string getFilmsList();
@@ -231,12 +242,8 @@ public:
 	void deleteFilmFromFilmBox(int id);
 	void logoutUser();
 	void showUserMoney();
+	string getThisFilmDetails(int id);
 	void showNetworkMoney();
-	void addVertex();
-	void add_edge(int u, int v);
-	void initGraph();
-	void buildGraph();
-	void printGraph();
 	Client* getUser(string uName);
 	string getPubFilmsList(string username);
 	void recommendFilm(vector<vector<int>> graph, int filmId);

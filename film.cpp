@@ -34,6 +34,8 @@ int fieldExistance(string field, string str){
 
 Film::Film(){
 	rating = 0;
+	numOfRaters = 0;
+	totalScore = 0;
 	rateStatus = WEAK;
 	hidden = false;
 }
@@ -156,6 +158,18 @@ int Film::getPublisherMoney(){
 	return temp;
 }
 
+string Film::getComments(){
+	string body;
+	for(int i = 0; i < comments.size(); i++){
+		body += "<tr>";
+    string comment = comments[i]->getContent();
+    body += "<td>" + to_string(i + 1) + "</td>";
+    body += "<td>" + comment + "</td>";
+    body += "</tr>";
+	}
+	return body;
+}
+
 
 
 int Film::getFilmId(){ return filmId; }
@@ -163,6 +177,7 @@ int Film::getFilmPrice(){return price;}
 string Film::getFilmName(){return name;}
 string Film::getFilmYear(){return year;}
 string Film::getFilmDirector(){return director;}
+string Film::getSummary(){return summary;}
 string Film::getPriceStr(){return to_string(price);}
 string Film::getRatingStr(){return to_string(rating);}
 string Film::getLengthStr(){return to_string(hour);}

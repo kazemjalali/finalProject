@@ -31,6 +31,25 @@ public:
   Response *callback(Request *);
 };
 
+class BuyFilmHandler : public RequestHandler {
+public:
+  BuyFilmHandler(Manager* m);
+  Response *callback(Request *);
+};
+
+
+class RateFilmHandler : public RequestHandler {
+public:
+  RateFilmHandler(Manager* m);
+  Response *callback(Request *);
+};
+
+class SubmitScoreHandler : public RequestHandler {
+public:
+  SubmitScoreHandler(Manager* m);
+  Response *callback(Request *);
+};
+
 class ProfileHandler : public RequestHandler {
 public:
   ProfileHandler(Manager* m);
@@ -40,6 +59,12 @@ public:
 class rechargeAccountHandler : public RequestHandler {
 public:
   rechargeAccountHandler(Manager* m);
+  Response *callback(Request *);
+};
+
+class filmDetailsHandler : public RequestHandler {
+public:
+  filmDetailsHandler(Manager* m);
   Response *callback(Request *);
 };
 
@@ -66,6 +91,19 @@ public:
   LoginHandler(Manager* m);
   Response *callback(Request *);
 };
+
+class FilterHandler : public RequestHandler {
+public:
+  FilterHandler(Manager* m);
+  Response *callback(Request *);
+};
+
+class LogoutHandler : public RequestHandler {
+public:
+  LogoutHandler(Manager* m);
+  Response *callback(Request *);
+};
+
 
 class UploadHandler : public RequestHandler {
 public:

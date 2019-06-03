@@ -90,6 +90,10 @@ Manager::Manager(){
 	users.push_back(admin);
 }
 
+void Manager::setCurrentUser(string usrname){
+	currentUser = usrname;
+}
+
 bool Manager::usernameExists(string name){
 	int i = 0;
 	for(i = 0; i < users.size(); i++){
@@ -192,7 +196,6 @@ void Manager::submitFilm(string info){
 	int filmId = filmBox.size() + 1;
 	Film* newFilm = user->addFilm(info, currentUser, filmId);
 	filmBox.push_back(newFilm);
-	addVertex();
 	cout << "OK" << endl;
 
 }
@@ -310,7 +313,6 @@ void Manager::purchaseFilm(string info){
 	users[userIndex]->pay(cost);
 	users[userIndex]->buyFilm(filmBox[filmIndex]);
 	sort(filmBox.begin(), filmBox.end(), compareFilmsByID);
-	buildGraph();
 	cout << "OK" << endl;
 }
 
@@ -376,6 +378,26 @@ void Manager::getFilmDetails(string info){
 	sort(filmBox.begin(), filmBox.end(), compareFilmsByRating);
 	recommendFilm(filmGraph, filmId);
 	sort(filmBox.begin(), filmBox.end(), compareFilmsByID);
+}
+
+string Manager::getRecommendList(){
+	string body;
+	sort(filmBox.begin(), filmBox.end(), compareFilmsByRating);
+	int recommendationSize = 4;
+	if(filmBox.size() < 4)
+		recommendationSize = filmBox.size();
+	for(int i = 0; i < recommendationSize; i++){
+		body += "<tr>";
+    string filmName = filmBox[i]->getFilmName();
+    string filmDirector = filmBox[i]->getFilmDirector();
+    string filmLength = filmBox[i]->getLengthStr();
+    body += "<td>" + filmName + "</td>";
+    body += "<td>" + filmLength + "</td>";
+    body += "<td>" + filmDirector + "</td>";
+    body += "</tr>";
+	}
+	sort(filmBox.begin(), filmBox.end(), compareFilmsByID);
+	return body;
 }
 
 void Manager::postReplyComment(string info){
@@ -490,55 +512,6 @@ void Manager::showUserMoney(){
 		users[userIndex]->showMoney();
 }
 
-void Manager::initGraph(){
-	int graphSize = filmBox.size();
-	for(int i = 0; i < graphSize; i++){
-		for(int j = 0; j < graphSize; j++){
-			filmGraph[i][j] = ZERO;
-		}
-	}
-}
-
-void Manager::addVertex(){
-	int matrixSize = filmBox.size();
-	vector<int> row;
-	for(int j = 0; j < filmGraph.size(); j++){
-		filmGraph[j].push_back(0);
-	}
-	for(int i = 0; i < matrixSize; i++){
-		row.push_back(0);
-	}
-	filmGraph.push_back(row);
-}
-
-void Manager::add_edge(int u, int v){
-   filmGraph[u - 1][v - 1]++;
-   filmGraph[v - 1][u - 1]++;
-}
-
-void Manager::buildGraph(){
-	vector<int> IDs;
-	initGraph();
-	for(int i = 0; i < users.size(); i++){
-		IDs = users[i]->getFilmsID();
-		for(int j = 0; j < IDs.size() - 1; j++){
-			for(int k = j + 1; k < IDs.size(); k++){
-				add_edge(IDs[j], IDs[k]);
-			}
-		}
-		IDs.clear();
-	}
-}
-
-void Manager::printGraph(){
-	for(int i = 0; i < filmGraph.size(); i++){
-		for(int j = 0; j < filmGraph[i].size(); j++){
-			cout << filmGraph[i][j] << " ";
-		}
-		cout << endl;
-	}
-}
-
 void Manager::recommendFilm(vector<vector<int>> graph, int filmId){
 	int row = filmId - 1;
 	int recommendationSize = 4;
@@ -550,7 +523,7 @@ void Manager::recommendFilm(vector<vector<int>> graph, int filmId){
 	int index = 0;
 	for(int j = 0; j < recommendationSize; j++){
 		maximum = 0;
-		cout << j + 1 << ". ";
+		cout << j + 1 << ". 	";
 		for(int i = 0; i < graph[row].size(); i++){
 			if(graph[row][i] > maximum){
 				maximum = graph[row][i];
@@ -565,6 +538,11 @@ void Manager::recommendFilm(vector<vector<int>> graph, int filmId){
 		int filmIndex = findFilm(index + 1);
 		filmBox[filmIndex]->showFilmInfoRec();
 	}
+}
+
+string Manager::filterPublishedFilms(string publisher, string directorName){
+	int userIndex = findUser(publisher, users);
+	return users[userIndex]->filterPubFilms(directorName);
 }
 
 string Manager::getPubFilmsList(string username){
@@ -593,10 +571,76 @@ string Manager::getFilmsList(){
     body += "<td>" + filmRate + "</td>";
     body += "<td>" + filmYear + "</td>";
     body += "<td>" + filmDirector + "</td>";
+		body += "<td><a href='filmDetails?id=";
+		body += to_string(filmBox[i]->getFilmId());
+		body += "'>See details</a></td>";
     body += "</tr>";
 	}
 	return body;
 }
+
+string Manager::filterFilms(string directorName){
+	string body;
+	for(int i = 0; i < filmBox.size(); i++){
+		if(filmBox[i]->getFilmDirector() == directorName){
+			body += "<tr>";
+	    string filmName = filmBox[i]->getFilmName();
+	    string filmDirector = filmBox[i]->getFilmDirector();
+	    string filmYear = filmBox[i]->getFilmYear();
+	    string filmRate = filmBox[i]->getRatingStr();
+	    string filmLength = filmBox[i]->getLengthStr();
+	    string filmPrice = filmBox[i]->getPriceStr();
+	    body += "<td>" + filmName + "</td>";
+	    body += "<td>" + filmLength + "</td>";
+	    body += "<td>" + filmPrice + "</td>";
+	    body += "<td>" + filmRate + "</td>";
+	    body += "<td>" + filmYear + "</td>";
+	    body += "<td>" + filmDirector + "</td>";
+			body += "<td><a href='filmDetails?id=";
+			body += to_string(filmBox[i]->getFilmId());
+			body += "'>See details</a></td>";
+	    body += "</tr>";
+			body += "<br>";
+			body += "<p align=\"left\"><a href=\"/clientHome\">Home</a></p>";
+		}
+		return body;
+	}
+}
+
+string Manager::getThisFilmDetails(int id){
+	string body;
+	int filmIndex = findFilm(id);
+	string filmName = filmBox[filmIndex]->getFilmName();
+	string filmDirector = filmBox[filmIndex]->getFilmDirector();
+	string filmYear = filmBox[filmIndex]->getFilmYear();
+	string filmRate = filmBox[filmIndex]->getRatingStr();
+	string filmLength = filmBox[filmIndex]->getLengthStr();
+	string filmPrice = filmBox[filmIndex]->getPriceStr();
+	string filmSummary = filmBox[filmIndex]->getSummary();
+	body += "<tr>";
+	body += "<td>" + filmName + "</td>";
+	body += "<td>" + filmLength + "</td>";
+	body += "<td>" + filmPrice + "</td>";
+	body += "<td>" + filmRate + "</td>";
+	body += "<td>" + filmYear + "</td>";
+	body += "<td>" + filmDirector + "</td>";
+	body += "<td>" + filmSummary + "</td>";
+	body += "<td><a href='buyFilm?id=";
+	body += to_string(id);
+	body += "'>Buy This Film </a></td>";
+	body += "</tr>";
+	return body;
+}
+
+string Manager::getFilmComments(int id){
+	string body;
+	int filmIndex = findFilm(id);
+	body = filmBox[filmIndex]->getComments();
+	return body;
+}
+
+
+
 
 
 void Manager::processPostCommands(string command, string info){
@@ -666,11 +710,6 @@ void Manager::processGetCommands(string command, string info){
 void Manager::processCommand(string &input){
 	if(input == "")
 		return;
-	if(currentUser == EMPTY){
-		if((!checkExistance("signup", input)))
-			throw PermissionException();
-
-	}
 	string commandType = getCommandType(input);
 	int qPosition = input.find(QUESTION_MARK);
 	string command = input.substr(ZERO, qPosition - SPACE_POS);

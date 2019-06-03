@@ -198,6 +198,36 @@ string Publisher::getPublishedFilmsList(){
 	return body;
 }
 
+string Publisher::filterPubFilms(string directorName){
+	string body;
+	for(int i = 0; i < publishedFilms.size(); i++){
+		if(publishedFilms[i]->getHiddenStatus())
+			continue;
+		if(publishedFilms[i]->getFilmDirector() == directorName){
+			body += "<tr>";
+			string filmName = publishedFilms[i]->getFilmName();
+			string filmDirector = publishedFilms[i]->getFilmDirector();
+			string filmYear = publishedFilms[i]->getFilmYear();
+			string filmRate = publishedFilms[i]->getRatingStr();
+			string filmLength = publishedFilms[i]->getLengthStr();
+			string filmPrice = publishedFilms[i]->getPriceStr();
+			body += "<td>" + filmName + "</td>";
+			body += "<td>" + filmLength + "</td>";
+			body += "<td>" + filmPrice + "</td>";
+			body += "<td>" + filmRate + "</td>";
+			body += "<td>" + filmYear + "</td>";
+			body += "<td>" + filmDirector + "</td>";
+			body += "<td><a href='deleteThisFilm?id=";
+			body += to_string(publishedFilms[i]->getFilmId());
+			body += "'>Delete</a></td>";
+			body += "</tr>";
+			body += "<br>";
+			body += "<p align=\"left\"><a href=\"/publisherHome\">Home</a></p>";
+		}
+	}
+	return body;
+}
+
 int Publisher::getFilmNum(){
 	return publishedFilms.size();
 }

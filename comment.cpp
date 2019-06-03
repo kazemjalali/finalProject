@@ -22,6 +22,8 @@ int Comment::getCommentId(){
 
 int Comment::getSender(){return senderId;}
 
+string Comment::getContent(){return content;}
+
 void Comment::showComment(){
 	cout << commentId << ". " << content << endl;
 	for(int i = 0; i < repliedComments.size(); i++){
